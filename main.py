@@ -17,19 +17,25 @@ if __name__ == '__main__' :
               [2, 5, 0, 0],
               [0, 0, 3, 1],
               [0, 0, 1, 3]])
-    bvec = [0.5, 0.5, 0.5, 0.5]
+    bvec = [0.5, 0.3, 0.1, 0.5]
+    # n이 2의 거듭제곱이어야 함. 아니라면 패딩 추가 필요.
+    
     bnum = 2
     # bnum : vec b의 차원에 따라 결정. log(dim.b)
 
     shots=8192
+    C=1.0
     
-    hhl = HHL(t0=t0, matA=matA, bvec=bvec, bnum=bnum, cnum=cnum)
+    
+    
+    hhl = HHL(t0=t0, matA=matA, bvec=bvec, bnum=bnum, cnum=cnum, C=C)
     hhl.HHL_Algorithm()
     
     simulator = AerSimulator()
     compiled_circuit = transpile(hhl.qc, simulator)
     result = simulator.run(compiled_circuit, shots=shots).result()
     counts = result.get_counts()
+    print(f"counts:{counts}")
     
 
     # 보조 큐비트가 1인 결과만!
@@ -40,19 +46,24 @@ if __name__ == '__main__' :
         
         if ancilla_bit == '1':
             pure_counts[res_bits] = count
+    print(f"pure counts: {pure_counts}")
+    
 
-    # 3. 양자 결과 벡터화 및 정규화
     total_valid_shots = sum(pure_counts.values())
     quantum_solution = np.zeros(2**bnum)
     
     for bitstring, count in pure_counts.items():
         idx = int(bitstring, 2)
-        # 확률 진폭은 확률의 제곱근에 비례함
+        # 각각의 측정횟수를 전체 측정횟수(ancilla가 1인 valid shot만)로 나눠서 제곱근씌움
+        # 확률 진폭을 이용해 측정횟수로 해를 찾아내므로 부호를 알기 어려움
+        # 음수 나타내려면 측정 다르게 해야함 (파울리 기댓값 계산, Implementation of the HHL)
         quantum_solution[idx] = np.sqrt(count / total_valid_shots)
 
     print("\n[HHL 알고리즘 결과]")
     print(f"n : {len(matA)}")
+    print(f"# of b register: {bnum}")
     print(f"# of C register : {cnum}\n")
+    
     
     print(f"ancilla가 |1>일 확률 : {total_valid_shots/shots*100:.2f}%")
     print(f"HHL 계산 : {quantum_solution}")
@@ -67,7 +78,7 @@ if __name__ == '__main__' :
     
     
     
-    
+    # --print : draw circuit
     parser = argparse.ArgumentParser()
     parser.add_argument('--print', action='store_true')
     args = parser.parse_args()
