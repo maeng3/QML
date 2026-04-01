@@ -69,7 +69,8 @@ class HHL:
         
         self.qc.barrier()
         
-        
+        # ancilla :|0>
+        # regc : 
         
         
     def AQE(self):
@@ -83,29 +84,28 @@ class HHL:
         #     self.qc.append(c_ry_gate, [self.creg[k]] + [self.areg[0]])
         
         
-        for k in range(1, 2**self.cnum):
+        for eigen_value_tilled in range(1, 2**self.cnum):
         # regC가 가질 수 있는 값에 따른 고유값 계산
-        # k : 큐비트에 저장된 고유값에 대한 정보를 가진 값
-        # k = (2^n * eigen_value * t) / (2 * pi)
-        # k값을 역계산하여 eigen_value값을 알아내는 것이 목적
+        # eigen_value_tilled : 고유값을 큐비트에 저장할 수 있게 정수 형태로 변환한 값
+        # eigen_value_tilled = (2^n * eigen_value * t) / (2 * pi)
         
-            phase = k / (2 ** self.cnum)
+            phase = eigen_value_tilled / (2 ** self.cnum)
             eigen_value = (2 * np.pi * phase) / self.t0
             if self.C <= eigen_value:
                 # 회전 각도 계산: 2 * arcsin(C/eigen_value)
                 theta = 2 * np.arcsin(self.C / eigen_value)
                 
                 # k를 cnum자리수의 이진수로 변환
-                bin_k = format(k, f'0{self.cnum}b')
+                bin_tilled = format(eigen_value_tilled, f'0{self.cnum}b')
                 
                 # ctrl_state를 통해 RegC가 bin_k일 때만 Ancilla를 회전시킴
                 # 비용 너무 큼..
-                cont_ry = RYGate(theta).control(self.cnum, ctrl_state=bin_k)
+                cont_ry = RYGate(theta).control(self.cnum, ctrl_state=bin_tilled)
                 
                 self.qc.append(cont_ry, self.creg[:] + [self.areg[0]])
                 
             else :
-                print(f"C is bigger than eigen_value (eigen_value : {eigen_value}, k : {k}, C : {self.C})")
+                print(f"C is bigger than eigen_value (eigen_value : {eigen_value}, eigenvalue_tilled : {eigen_value_tilled}, C : {self.C})")
 
         self.qc.barrier()
         

@@ -38,12 +38,13 @@ if __name__ == '__main__' :
     print(f"counts:{counts}")
     
 
-    # 보조 큐비트가 1인 결과만!
+
     pure_counts = {}
     for bitstring, count in counts.items():
         # 공백으로 구분된 비트 문자열 분리
         res_bits, ancilla_bit = bitstring.split()
         
+        # 보조 큐비트가 1인 결과만!
         if ancilla_bit == '1':
             pure_counts[res_bits] = count
     print(f"pure counts: {pure_counts}")
