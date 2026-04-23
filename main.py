@@ -5,7 +5,7 @@ import numpy as np
 import argparse
 
 if __name__ == '__main__' :
-    cnum = 4
+    cnum = 5
     # cnum : eigenvalue 표현력 결정
     # ex. cnum=2; 0, 0.25, 0.5, 0.75로 eigenvalue를 이진소수화 할 수  있음
     # cnum이 작으면 eigenvalue가 세밀할때 제대로 표현 못하고 근사해버림
@@ -13,11 +13,11 @@ if __name__ == '__main__' :
     t0 = np.pi/(2**(cnum-1))
     # (eigenvalue_max * t0 / 2 * pi) <= 1
     
-    matA = np.array([[5, 2, 0, 0],
-              [2, 5, 0, 0],
-              [0, 0, 3, 1],
-              [0, 0, 1, 3]])
-    bvec = [0.5, 0.3, 0.1, 0.5]
+    matA = np.array([[4, 1, 0, 0],
+                     [1, 4, 1, 0],
+                     [0, 1, 4, 1],
+                     [0, 0, 1, 4]])
+    bvec = [6, 12, 15, 11]
     # n이 2의 거듭제곱이어야 함. 아니라면 패딩 추가 필요.
     
     bnum = 2
@@ -35,7 +35,6 @@ if __name__ == '__main__' :
     compiled_circuit = transpile(hhl.qc, simulator)
     result = simulator.run(compiled_circuit, shots=shots).result()
     counts = result.get_counts()
-    print(f"counts:{counts}")
     
 
 
@@ -47,7 +46,6 @@ if __name__ == '__main__' :
         # 보조 큐비트가 1인 결과만!
         if ancilla_bit == '1':
             pure_counts[res_bits] = count
-    print(f"pure counts: {pure_counts}")
     
 
     total_valid_shots = sum(pure_counts.values())
